@@ -53,14 +53,13 @@ prefix: require("./prefix.json").prefix || ".",
   },
 
   lavalink: {
-    nodes: [
-      {
-        name: "Main Node",
-        host: "lavalinkv4.serenetia.com",
-        port: 80,
-        password: "https://seretia.link/discord",
-        secure: false, 
-      }
-    ]
+  nodes: [
+    {
+      name: "Main Node",
+      host: "lava-v4.ajieblogs.eu.org",
+      port: 80,
+      password: "https://dsc.gg/ajidevserver",
+      secure: false
+    }
+  ]
   }
-};
