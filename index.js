@@ -1416,29 +1416,52 @@ delete require.cache[require.resolve("./prefix.json")];
         });
       }
 
-      client.login(config.token);
+    
 
-
-const fs = require("fs");
+// --- ALL COMMANDS COMBINED ---
 client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-delete require.cache[require.resolve("./prefix.json")];
+  if (message.author.bot || !message.guild) return;
+
+  // 1. Prefix Load
+  delete require.cache[require.resolve("./prefix.json")];
   const currentPrefix = require("./prefix.json").prefix;
 
-  if (message.content.startsWith(currentPrefix + "prefix")) {
-    if (!message.member.permissions.has("Administrator")) {
-      return message.reply("❌ Administrator permission required.");
-    }
+  // 2. Music (Mention Play) logic
+  const botMention = `<@${client.user.id}>`;
+  if (message.content.startsWith(botMention)) {
+    const args = message.content.trim().split(/ +/g);
+    const command = args[1]?.toLowerCase();
+    const query = args.slice(2).join(" ");
 
+    if (command === "play" && query) {
+      const vc = message.member.voice.channel;
+      if (!vc) return message.reply("❌ Join a VC first!");
+      
+      let player = riffy.players.get(message.guild.id) || riffy.createConnection({ 
+        guildId: message.guild.id, 
+        voiceChannel: vc.id, 
+        textChannel: message.channel.id, 
+        deaf: true 
+      });
+
+      const resolve = await riffy.resolve({ query, requester: message.author.id });
+      player.queue.add(resolve.tracks[0]);
+      if (!player.playing) player.play();
+      return message.reply(`🎶 Playing: **${resolve.tracks[0].info.title}**`);
+    }
+  }
+
+  // 3. Prefix Change Logic
+  if (message.content.startsWith(currentPrefix + "prefix")) {
+    if (!message.member.permissions.has("Administrator")) return message.reply("❌ No Admin Permissions!");
     const args = message.content.split(" ").slice(1);
     const newPrefix = args[0];
-
-    if (!newPrefix) {
-      return message.reply("Usage: " + currentPrefix + "prefix <newprefix>");
-    }
-
+    if (!newPrefix) return message.reply("Usage: " + currentPrefix + "prefix <new>");
+    
     fs.writeFileSync("./prefix.json", JSON.stringify({ prefix: newPrefix }, null, 2));
-
-    return message.reply("✅ Prefix changed to: " + newPrefix);
+    return message.reply("✅ Prefix updated to: " + newPrefix);
   }
 });
+
+// IDHI LAST LO UNDALI!!!
+client.login(config.token);
