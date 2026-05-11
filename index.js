@@ -1416,7 +1416,7 @@ delete require.cache[require.resolve("./prefix.json")];
         });
       }
 
-    
+    const fs = require("fs");
 
 // --- ALL COMMANDS COMBINED ---
 client.on("messageCreate", async (message) => {
